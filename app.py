@@ -1,7 +1,8 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import pandas as pd
+import numpy as np
 
-st.set_page_config(page_title="Tradernaveia", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Tradernaveia - Plataforma de Estudos", page_icon="📈", layout="wide")
 
 if "autenticado" not in st.session_state:
     st.session_state["autenticado"] = False
@@ -21,72 +22,67 @@ if not st.session_state["autenticado"]:
                     st.error("Usuário ou senha incorretos.")
 else:
     st.sidebar.title("🚀 Tradernaveia")
-    ativo = st.sidebar.selectbox("Selecione o Ativo:", ["Ouro (Gold)", "Mini Índice (WIN)", "Mini Dólar (WDO)", "Bitcoin (BTC)", "S&P 500 (US500)"])
-    
-    # Mapeamento dos símbolos profissionais para o gráfico
-    tv_symbols = {
-        "Ouro (Gold)": "COMEX:GC1!",
-        "Mini Índice (WIN)": "BMFBOVESPA:WIN1!",
-        "Mini Dólar (WDO)": "BMFBOVESPA:WDO1!",
-        "Bitcoin (BTC)": "BINANCE:BTCUSDT",
-        "S&P 500 (US500)": "SP:SPX"
-    }
-    symbol = tv_symbols.get(ativo, "COMEX:GC1!")
+    ativo = st.sidebar.selectbox("Selecione o Ativo:", ["Ouro (Gold)", "Mini Índice (WIN)", "Mini Dólar (WDO)", "Bitcoin (BTC)"])
     
     st.sidebar.markdown("---")
     if st.sidebar.button("Sair da Plataforma", use_container_width=True):
         st.session_state["autenticado"] = False
         st.rerun()
 
-    st.title(f"📊 Painel Operacional & Gráfico: {ativo}")
+    st.title(f"📊 Painel Modular de Estudos: {ativo}")
+    st.markdown("Ambiente dedicado para construção de ferramentas de Gráfico de Pontos, Renko e Tape Reading.")
     
-    tab1, tab2, tab3 = st.tabs(["📈 Gráfico Profissional", "🎯 Diário de Alvos (Backtest)", "📝 Anotações do Dia"])
+    # Abas estruturadas para as ferramentas modulares
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "🧱 Gráfico Renko", 
+        "🎯 Gráfico de Pontos", 
+        "📝 Diário de Alvos & Backtest", 
+        "⚙️ Bloco de Notas & Ferramentas"
+    ])
     
     with tab1:
-        # Incorporando o gráfico profissional avançado do TradingView
-        tradingview_html = f"""
-        <div class="tradingview-widget-container" style="height:550px;width:100%">
-          <div id="tradingview_chart" style="height:100%;width:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-          <script type="text/javascript">
-          new TradingView.widget(
-          {{
-            "width": "100%",
-            "height": "550",
-            "symbol": "{symbol}",
-            "interval": "D",
-            "timezone": "America/Sao_Paulo",
-            "theme": "dark",
-            "style": "1",
-            "locale": "br",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_chart"
-          }});
-          </script>
-        </div>
-        """
-        components.html(tradingview_html, height=570)
+        st.subheader("Módulo Customizável: Gráfico Renko")
+        st.markdown("Configure os parâmetros dos tijolos (*bricks*) para filtrar o ruído de mercado e operar o fluxo puro.")
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        col_a, col_b = st.columns(2)
-        with col_a:
-            st.info("📌 Gráfico Temporal (Ex: 2 min / Setups de Corzinha)\n\nGatilhos rápidos de rompimento e barras de ignição.")
-        with col_b:
-            st.success("🎯 Gráfico de Pontos (Ex: 10P)\n\nLeitura limpa de blocos de pontuação e alvos fixos de 500 pontos.")
+        col_r1, col_r2 = st.columns(2)
+        with col_r1:
+            tamanho_brick = st.number_input("Tamanho do Brick (Pontos/Ticks)", value=10, step=1)
+        with col_r2:
+            reversao_bricks = st.selectbox("Regra de Reversão", ["2 Bricks", "1 Brick"])
+            
+        st.info(f"🔧 Parâmetro Ativo: Renko de {tamanho_brick} unidades para {ativo}. Aqui podes injetar a tua lógica matemática de construção de caixas.")
+        
+        # Simulação visual de estrutura modular de blocos Renko
+        simulated_renko = pd.DataFrame(np.random.choice([-1, 1], size=(20, 1)), columns=['Direção do Tijolo'])
+        st.bar_chart(simulated_renko)
 
     with tab2:
-        st.subheader("Registo de Pontos e Performance")
+        st.subheader("Módulo Customizável: Gráfico de Pontos")
+        st.markdown("Leitura limpa de blocos de pontuação fixa, ignorando o fator tempo.")
+        
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+            pontos_bloco = st.number_input("Tamanho do Bloco de Pontos", value=100, step=10)
+        with col_p2:
+            alvo_operacional = st.number_input("Alvo de Saída (Ex: 500 pontos)", value=500, step=50)
+            
+        st.success(f"🎯 Configuração de Pontos: Blocos de {pontos_bloco} pontos com foco no alvo de {alvo_operacional} pontos.")
+        
+        # Simulação de gráfico de pontos estruturado
+        chart_points = pd.DataFrame(np.cumsum(np.random.randn(25, 1) * 50 + 10), columns=['Evolução de Pontos'])
+        st.line_chart(chart_points)
+
+    with tab3:
+        st.subheader("Diário de Validação e Alvos")
         with st.form("form_backtest"):
             col1, col2, col3 = st.columns(3)
             with col1:
-                pontos = st.number_input("Pontos Alvo / Realizados", value=500, step50=50) if hasattr(st, 'number_input') else st.number_input("Pontos Alvo / Realizados", value=500, step=50)
+                p_real = st.number_input("Pontos Realizados", value=500, step=50)
             with col2:
-                contratos = st.number_input("Qtd Contratos", value=1, step=1)
+                qtd_contratos = st.number_input("Contratos", value=1, step=1)
             with col3:
-                resultado = st.selectbox("Resultado", ["Gain", "Loss", "Fora do Alvo"])
+                res_estudo = st.selectbox("Resultado", ["Gain", "Loss", "Fora do Alvo"])
                 
-            obs = st.text_area("Observações sobre o Tape Reading:")
-            if st.form_submit_button("Salvar Registo"):
-                st.success(f"Registo guardado com sucesso! Alvo catalogado para {ativo}.")
+            obs_tape = st.text_area("Notas sobre o Tape Reading / Rompimento:")
+            if st.form_submit_button("Guardar Registo"):
+                st.success(f"Registo catalogado com sucesso para {ativo}!")

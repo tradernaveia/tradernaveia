@@ -1,6 +1,5 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Tradernaveia", page_icon="📈", layout="wide")
 
@@ -22,30 +21,55 @@ if not st.session_state["autenticado"]:
                     st.error("Usuário ou senha incorretos.")
 else:
     st.sidebar.title("🚀 Tradernaveia")
-    ativo = st.sidebar.selectbox("Selecione o Ativo:", ["Ouro (Gold - GC=F)", "Mini Índice (WIN)", "Mini Dólar (WDO)", "Bitcoin (BTC)", "S&P 500 (US500)"])
+    ativo = st.sidebar.selectbox("Selecione o Ativo:", ["Ouro (Gold)", "Mini Índice (WIN)", "Mini Dólar (WDO)", "Bitcoin (BTC)", "S&P 500 (US500)"])
+    
+    # Mapeamento dos símbolos profissionais para o gráfico
+    tv_symbols = {
+        "Ouro (Gold)": "COMEX:GC1!",
+        "Mini Índice (WIN)": "BMFBOVESPA:WIN1!",
+        "Mini Dólar (WDO)": "BMFBOVESPA:WDO1!",
+        "Bitcoin (BTC)": "BINANCE:BTCUSDT",
+        "S&P 500 (US500)": "SP:SPX"
+    }
+    symbol = tv_symbols.get(ativo, "COMEX:GC1!")
     
     st.sidebar.markdown("---")
     if st.sidebar.button("Sair da Plataforma", use_container_width=True):
         st.session_state["autenticado"] = False
         st.rerun()
 
-    st.title(f"📊 Painel de Estudos & Gráfico: {ativo}")
-    st.markdown("Monitoramento operacional, variação de preços e validação de alvos em tempo real.")
+    st.title(f"📊 Painel Operacional & Gráfico: {ativo}")
     
-    # Abas da Aplicação
-    tab1, tab2, tab3 = st.tabs(["📈 Gráfico & Dinâmica", "🎯 Diário de Alvos (Backtest)", "📝 Anotações do Dia"])
+    tab1, tab2, tab3 = st.tabs(["📈 Gráfico Profissional", "🎯 Diário de Alvos (Backtest)", "📝 Anotações do Dia"])
     
     with tab1:
-        st.subheader(f"Evolução de Preço e Volatilização para {ativo}")
+        # Incorporando o gráfico profissional avançado do TradingView
+        tradingview_html = f"""
+        <div class="tradingview-widget-container" style="height:550px;width:100%">
+          <div id="tradingview_chart" style="height:100%;width:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          new TradingView.widget(
+          {{
+            "width": "100%",
+            "height": "550",
+            "symbol": "{symbol}",
+            "interval": "D",
+            "timezone": "America/Sao_Paulo",
+            "theme": "dark",
+            "style": "1",
+            "locale": "br",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_chart"
+          }});
+          </script>
+        </div>
+        """
+        components.html(tradingview_html, height=570)
         
-        # Gerando uma simulação gráfica fluida e limpa baseada no ativo selecionado para acompanhar o comportamento técnico
-        chart_data = pd.DataFrame(
-            np.random.randn(30, 2) * [10, 2] + [2500 if "Ouro" in ativo else 130000, 50],
-            columns=['Preço Compra/Venda', 'Agressão de Fluxo']
-        )
-        
-        st.line_chart(chart_data)
-        
+        st.markdown("<br>", unsafe_allow_html=True)
         col_a, col_b = st.columns(2)
         with col_a:
             st.info("📌 Gráfico Temporal (Ex: 2 min / Setups de Corzinha)\n\nGatilhos rápidos de rompimento e barras de ignição.")
@@ -57,7 +81,7 @@ else:
         with st.form("form_backtest"):
             col1, col2, col3 = st.columns(3)
             with col1:
-                pontos = st.number_input("Pontos Alvo / Realizados", value=500, step=50)
+                pontos = st.number_input("Pontos Alvo / Realizados", value=500, step50=50) if hasattr(st, 'number_input') else st.number_input("Pontos Alvo / Realizados", value=500, step=50)
             with col2:
                 contratos = st.number_input("Qtd Contratos", value=1, step=1)
             with col3:
@@ -65,8 +89,4 @@ else:
                 
             obs = st.text_area("Observações sobre o Tape Reading:")
             if st.form_submit_button("Salvar Registo"):
-                st.success(f"Registo guardado com sucesso! Alvo de {pontos} pontos catalogado para {ativo}.")
-
-    with tab3:
-        st.subheader("Bloco de Notas Estratégicas")
-        st.text_area("Anote os pontos de suporte, resistência e regiões institucionais do dia:", height=200)
+                st.success(f"Registo guardado com sucesso! Alvo catalogado para {ativo}.")

@@ -1,17 +1,38 @@
-with col3:
-                resultado = st.selectbox("Resultado do Estudo", ["Gain", "Loss", "Empate / Fora do Alvo"])
-                
-            observacao = st.text_area("Observações sobre o Tape Reading / Rompimento:")
-            salvar_registro = st.form_submit_button("Salvar Registro de Estudo")
-            
-            if salvar_registro:
-                st.success(f"Registro salvo com sucesso! Alvo de {pontos} pontos catalogado para {ativo_escolhido}.")
+import streamlit as st
 
-    with tab3:
-        st.subheader("Bloco de Notas Estratégicas")
-        st.text_area("Anote aqui os pontos de suporte, resistência e regiões de briga institucional do dia:", height=200)
+st.set_page_config(page_title="Tradernaveia", page_icon="📈", layout="wide")
+
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
 
 if not st.session_state["autenticado"]:
-    tela_login()
+    st.markdown("<h2 style='text-align: center; color: #FF4B4B;'>TRADERNAVEIA - LOGIN</h2>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        with st.form("login"):
+            u = st.text_input("Usuário")
+            s = st.text_input("Senha", type="password")
+            if st.form_submit_button("Entrar", use_container_width=True):
+                if u == "Tradernaveia" and s == "Jvc@2009":
+                    st.session_state["autenticado"] = True
+                    st.rerun()
+                else:
+                    st.error("Dados incorretos.")
 else:
-    plataforma_estudos()
+    st.sidebar.title("🚀 Tradernaveia")
+    ativo = st.sidebar.selectbox("Ativo:", ["Ouro (Gold)", "Mini Índice", "Mini Dólar", "Bitcoin"])
+    if st.sidebar.button("Sair"):
+        st.session_state["autenticado"] = False
+        st.rerun()
+
+    st.title(f"📊 Painel Operacional: {ativo}")
+    st.info("Plataforma ativa e sincronizada para estudos e validação de alvos.")
+    
+    tab1, tab2 = st.tabs(["Painel de Alvos", "Notas"])
+    with tab1:
+        st.subheader("Registo de Pontos")
+        p = st.number_input("Pontos Alvo", value=500, step=50)
+        if st.button("Salvar Alvo"):
+            st.success(f"Alvo de {p} pontos registado para {ativo}!")
+    with tab2:
+        st.text_area("Anotações do dia:", height=150)

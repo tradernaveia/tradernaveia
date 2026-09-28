@@ -23,7 +23,6 @@ else:
     st.sidebar.title("🚀 Tradernaveia")
     ativo = st.sidebar.selectbox("Ativo:", ["Ouro (XAUUSD)", "Bitcoin (BTCUSD)", "S&P 500 (SPX)", "Nasdaq (IXIC)"])
     
-    # Símbolos limpos e universais sem restrições de widgets externos
     symbols = {
         "Ouro (XAUUSD)": "OANDA:XAUUSD",
         "Bitcoin (BTCUSD)": "BINANCE:BTCUSDT",
@@ -39,17 +38,18 @@ else:
 
     st.title(f"📊 Painel Operacional: {ativo}")
     
-    t1, t2, t3 = st.tabs(["📈 Gráfico Profissional", "🎯 Diário de Alvos", "📝 Anotações"])
+    # Abas organizadas incluindo os motores de cálculo de Pontos e Renko
+    t1, t2, t3, t4 = st.tabs(["📈 Gráfico Profissional", "⚙️ Motor Pontos & Renko", "🎯 Diário de Alvos", "📝 Anotações"])
     
     with t1:
         html_code = f"""
-        <div style="width:100%; height:580px;">
+        <div style="width:100%; height:550px;">
           <div id="tradingview_container" style="height:100%;width:100%"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
           <script type="text/javascript">
           new TradingView.widget({{
             "width": "100%",
-            "height": "580",
+            "height": "550",
             "symbol": "{sym}",
             "interval": "D",
             "timezone": "America/Sao_Paulo",
@@ -64,14 +64,28 @@ else:
           </script>
         </div>
         """
-        components.html(html_code, height=600)
+        components.html(html_code, height=570)
         
     with t2:
-        st.subheader("Registo de Alvos")
-        pts = st.number_input("Pontos Alvo", value=500, step=50)
-        if st.button("Salvar Registo"):
-            st.success(f"Alvo de {pts} pontos guardado para {ativo}!")
+        st.subheader("⚙️ Configuração e Simulação de Parâmetros Operacionais")
+        
+        col_m1, col_m2 = st.columns(2)
+        
+        with col_m1:
+            st.markdown("### 🎯 Gráfico de Pontos")
+            tamanho_bloco = st.number_input("Tamanho do Bloco de Pontos", value=100, step=10)
+            alvo_pontos = st.number_input("Alvo Fixo Operacional (Ex: 500)", value=500, step=50)
             
+            # Cálculo dinâmico de blocos para o alvo
+            blocos_necessarios = alvo_pontos / tamanho_bloco if tamanho_bloco > 0 else 0
+            st.info(f"📊 Leitura Ativa: Para atingir o alvo de {alvo_pontos} pontos com blocos de {tamanho_bloco}, serão necessários {blocos_necessarios:.1f} blocos direcionais limpos.")
+            
+        with col_m2:
+            st.markdown("### 🧱 Gráfico Renko")
+            brick_size = st.number_input("Tamanho do Tijolo (Brick)", value=10, step=1)
+            reversao_bricks = st.selectbox("Regra de Reversão de Caixa", ["2 Bricks", "1 Brick"])
+            
+            st.success(f"🧱 Regra Ativa: Renko configurado com bricks de {brick_size} unidades e reversão de {reversao_bricks} para filtragem de ruído institucional no ativo {ativo}.")
+
     with t3:
-        st.subheader("Bloco de Notas")
-        st.text_area("Anotações estratégicas do dia:", height=200)
+        st.subheader("Registo de Alvos e Backtest")

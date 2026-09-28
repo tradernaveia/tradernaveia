@@ -1,8 +1,4 @@
-tamanho_bloco = st.number_input("Tamanho do Bloco de Pontos", value=100, step=10)
-            alvo_pontos = st.number_input("Alvo Operacional", value=500, step=50)
-            
-            # Geração do gráfico interativo de Pontos com Plotly
-            point_values = np.cumsum(np.random.randn(25) * 40 + 15)
+point_values = np.cumsum(np.random.randn(25) * 40 + 15)
             
             fig_points = go.Figure(data=[go.Scatter(
                 y=point_values, mode='lines+markers',

@@ -21,15 +21,16 @@ if not st.session_state["autenticado"]:
                     st.error("Dados incorretos.")
 else:
     st.sidebar.title("🚀 Tradernaveia")
-    ativo = st.sidebar.selectbox("Ativo:", ["Ouro (Gold)", "Mini Índice", "Mini Dólar", "Bitcoin"])
+    ativo = st.sidebar.selectbox("Ativo:", ["Ouro (XAUUSD)", "Bitcoin (BTCUSD)", "S&P 500 (SPX)", "Nasdaq (IXIC)"])
     
+    # Símbolos limpos e universais sem restrições de widgets externos
     symbols = {
-        "Ouro (Gold)": "COMEX:GC1!",
-        "Mini Índice": "BMFBOVESPA:WIN1!",
-        "Mini Dólar": "BMFBOVESPA:WDO1!",
-        "Bitcoin": "BINANCE:BTCUSDT"
+        "Ouro (XAUUSD)": "OANDA:XAUUSD",
+        "Bitcoin (BTCUSD)": "BINANCE:BTCUSDT",
+        "S&P 500 (SPX)": "SP:SPX",
+        "Nasdaq (IXIC)": "NASDAQ:IXIC"
     }
-    sym = symbols.get(ativo, "COMEX:GC1!")
+    sym = symbols.get(ativo, "OANDA:XAUUSD")
     
     st.sidebar.markdown("---")
     if st.sidebar.button("Sair"):
@@ -42,19 +43,28 @@ else:
     
     with t1:
         html_code = f"""
-        <div style="height:530px;width:100%">
-          <div id="tv_chart" style="height:100%;width:100%"></div>
+        <div style="width:100%; height:580px;">
+          <div id="tradingview_container" style="height:100%;width:100%"></div>
           <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
           <script type="text/javascript">
           new TradingView.widget({{
-            "width": "100%", "height": "530", "symbol": "{sym}",
-            "interval": "3", "timezone": "America/Sao_Paulo",
-            "theme": "dark", "style": "1", "locale": "br", "container_id": "tv_chart"
+            "width": "100%",
+            "height": "580",
+            "symbol": "{sym}",
+            "interval": "D",
+            "timezone": "America/Sao_Paulo",
+            "theme": "dark",
+            "style": "1",
+            "locale": "br",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "allow_symbol_change": false,
+            "container_id": "tradingview_container"
           }});
           </script>
         </div>
         """
-        components.html(html_code, height=550)
+        components.html(html_code, height=600)
         
     with t2:
         st.subheader("Registo de Alvos")

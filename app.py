@@ -89,3 +89,7 @@ else:
 
     with t3:
         st.subheader("Registo de Alvos e Backtest")
+streamlit
+plotly
+pandas
+numpy
